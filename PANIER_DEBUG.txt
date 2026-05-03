@@ -1,0 +1,153 @@
+❌ ERREUR PANIER - GUIDE DE DÉBOGAGE
+
+════════════════════════════════════════════════════════════════════
+
+⚠️ PROBLÈME IDENTIFIÉ
+
+Les fichiers ont été mis à jour pour corriger les problèmes de chemins.
+Si vous recevez une erreur lors de l'ajout au panier, suivez ce guide.
+
+════════════════════════════════════════════════════════════════════
+
+🔍 ÉTAPE 1 : TESTER LE PANIER
+
+1. Accédez à cette URL:
+   http://localhost/projet%20web/front/app/views/products/test_cart.php
+
+2. Regardez les résultats:
+   ✓ Si tous les tests sont VERTS → Allez à ÉTAPE 2
+   ✗ Si des tests sont ROUGES → Consultez le guide ci-dessous
+
+════════════════════════════════════════════════════════════════════
+
+🛠️ RÉSOUDRE LES ERREURS COURANTES
+
+PROBLÈME 1: "Fichier Database.php non trouvé"
+───────────────────────────────────────────
+Solution:
+- Vérifiez que le fichier existe: app/models/Database.php
+- Assurez-vous que le chemin est correct dans Product.php:
+  require_once (__DIR__ . '/Database.php');
+
+PROBLÈME 2: "Erreur de connexion à la base de données"
+──────────────────────────────────────────────────────
+Solution:
+1. Ouvrez: app/models/Database.php
+2. Vérifiez les identifiants:
+   - Host: localhost (doit être correct pour votre setup)
+   - Utilisateur: root
+   - Mot de passe: (vérifiez le vôtre)
+   - Base de données: maisoncookies (doit exister)
+
+3. Testez la connexion manuellement:
+   ```php
+   $db = new PDO('mysql:host=localhost;dbname=maisoncookies','root','');
+   echo "Connecté!";
+   ```
+
+PROBLÈME 3: "Aucun produit ne s'ajoute au panier"
+──────────────────────────────────────────────────
+Solution:
+1. Ouvrez la console du navigateur (F12)
+2. Onglet "Console" - recherchez les erreurs JavaScript
+3. Onglet "Network" - cliquez sur "ajouter au panier"
+   - Cherchez un appel à CartController.php
+   - Vérifiez le statut HTTP (200 = OK, 404 = non trouvé)
+   - Regardez la réponse JSON
+
+PROBLÈME 4: "URL du contrôleur non trouvée (erreur 404)"
+────────────────────────────────────────────────────────
+Solution:
+- Le chemin window.CART_CONTROLLER_URL n'est pas correct
+- Vérifiez que cette variable est définie dans chaque page
+- Pour cookiesDetails.php et listCookies.php:
+  window.CART_CONTROLLER_URL = '../../controllers/CartController.php';
+- Pour index.php:
+  window.CART_CONTROLLER_URL = 'app/controllers/CartController.php';
+
+════════════════════════════════════════════════════════════════════
+
+🔧 ÉTAPE 2 : TESTER MANUELLEMENT
+
+1. Ouvrez votre navigateur
+2. Accédez à: http://localhost/projet%20web/front/
+3. Ouvrez la console (F12) → Onglet "Console"
+4. Tapez dans la console:
+   
+   fetch(window.CART_CONTROLLER_URL, {
+     method: 'POST',
+     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+     body: 'action=add&id=1&quantite=1'
+   })
+   .then(r => r.json())
+   .then(d => console.log(d))
+
+5. Regardez le résultat dans la console
+
+════════════════════════════════════════════════════════════════════
+
+📞 AIDE SUPPLÉMENTAIRE
+
+Si les tests passent mais le panier ne fonctionne toujours pas:
+
+1. Videz le cache du navigateur (Ctrl+Shift+Suppr)
+2. Redémarrez votre serveur web
+3. Vérifiez que JavaScript est activé
+4. Vérifiez que Font Awesome est chargé (sinon les icônes n'apparaîtront pas)
+
+════════════════════════════════════════════════════════════════════
+
+✅ VÉRIFIER QUE LE PANIER FONCTIONNE
+
+1. Allez sur: http://localhost/projet%20web/front/app/views/products/cookiesDetails.php?id=1
+2. Cliquez sur "Ajouter au panier"
+3. Vous devriez voir une notification verte: "Produit ajouté au panier!"
+4. Le compteur du panier (icône 🛒) devrait augmenter
+5. Cliquez sur l'icône du panier pour voir votre panier
+
+════════════════════════════════════════════════════════════════════
+
+✨ FICHIERS QUI ONT ÉTÉ CORRIGÉS
+
+1. app/models/Product.php
+   - Changement: require_once ('Database.php') 
+   - En: require_once (__DIR__ . '/Database.php')
+   - Raison: Chemins relatifs peuvent être ambigus
+
+2. app/controllers/CartController.php
+   - Ajout: session_start() au début
+   - Raison: Assurer que la session PHP est démarrée
+
+3. index.php, cookiesDetails.php, listCookies.php
+   - Ajout: window.CART_CONTROLLER_URL = 'chemin/correct'
+   - Raison: Les chemins diffèrent selon la page
+
+════════════════════════════════════════════════════════════════════
+
+💡 PROCHAINES ÉTAPES
+
+Si tout fonctionne:
+1. Testez avec plusieurs produits
+2. Modifiez les quantités dans le panier
+3. Supprimez des articles
+4. Videz le panier
+5. Testez depuis mobile (responsive)
+
+════════════════════════════════════════════════════════════════════
+
+Questions fréquentes:
+- "Le panier se vide quand je ferme l'onglet?" 
+  Oui, c'est normal avec les sessions PHP. Utilisez une base de données pour persister.
+  
+- "Comment ajouter des codes promo?"
+  Modifiez CartController.php et ajoutez la logique de calcul.
+  
+- "Comment intégrer un paiement?"
+  Créez une page de checkout et intégrez Stripe/PayPal.
+
+════════════════════════════════════════════════════════════════════
+
+Besoin d'aide supplémentaire?
+Consultez: CART_DOCUMENTATION.md
+
+════════════════════════════════════════════════════════════════════

@@ -200,7 +200,7 @@
     // Hide loader after curtain completes
     setTimeout(() => {
       document.getElementById('loader').style.display = 'none';
-      window.location.href = "index.html";
+      window.location.href = "index.php";
 
     }, 5000);
 

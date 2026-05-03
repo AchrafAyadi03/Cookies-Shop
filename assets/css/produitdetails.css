@@ -313,10 +313,6 @@
   background: var(--caramel);
 }
 
-.tab-content {
-  margin-top: 2rem;
-}
-
 .tab-pane {
   display: none;
   animation: fadeIn .3s ease;
@@ -358,30 +354,6 @@
   color: var(--caramel);
   font-weight: bold;
   font-size: 1.2rem;
-}
-
-.nutrition-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.nutrition-table tr {
-  border-bottom: 1px solid var(--cream);
-}
-
-.nutrition-table td {
-  padding: 1rem 0;
-  color: var(--ink-soft);
-}
-
-.nutrition-table td:first-child {
-  font-weight: 500;
-}
-
-.nutrition-table td:last-child {
-  text-align: right;
-  color: var(--caramel);
-  font-weight: 600;
 }
 
 .shipping-info {
@@ -430,5 +402,32 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 2rem;
+}
+
+/* ─── INGREDIENTS BADGES ────────────────────────────────────── */
+.ingredients-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .8rem;
+  padding: .5rem 0;
+}
+
+.ingredient-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(196, 120, 62, .1), rgba(196, 120, 62, .05));
+  color: var(--caramel);
+  padding: .6rem 1.2rem;
+  border-radius: 20px;
+  font-size: .9rem;
+  font-weight: 500;
+  border: 1.5px solid var(--caramel);
+  transition: all .3s ease;
+  letter-spacing: .02em;
+}
+
+.ingredient-badge:hover {
+  background: linear-gradient(135deg, rgba(196, 120, 62, .15), rgba(196, 120, 62, .1));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(196, 120, 62, .2);
 }
 

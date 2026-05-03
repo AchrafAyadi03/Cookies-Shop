@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>L'art du Cookie | Pâtisserie artisanale</title>
-  <link href="/assets/css/style.css" rel="stylesheet">
-  <script src="/assets/js/script.js" defer></script>
+  <link href="assets/css/style.css" rel="stylesheet">
+  <link href="assets/css/cart.css" rel="stylesheet">
+  <script src="assets/js/script.js" defer></script>
+  <script src="assets/js/cart.js" defer></script>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,6 +20,14 @@
   <!-- GSAP -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
+  <?php
+  require_once('app/models/Product.php');
+  $product = new cookies();
+  $stmt = $product->listCookies();
+  $cookiesList = $stmt->fetchAll(PDO::FETCH_ASSOC); 
+?>
+
 </head>
 <body>
 
@@ -27,13 +37,17 @@
 
 <!-- ═══ NAVBAR ════════════════════════════════════════════════ -->
 <nav class="navbar" id="navbar">
-  <a href="#" class="navbar-brand">
-    <img src="images/logo2.png" alt="L'art du Cookie">
+  <a href="index.php" class="navbar-brand">
+    <img src="assets/images/logo2.png" alt="L'art du Cookie">
   </a>
   <div class="navbar-menu">
-    <a href="#accueil">Accueil</a>
-    <a href="pages/produits.html">Produits</a>
+    <a href="index.php">Accueil</a>
+    <a href="app/views/products/listCookies.php">Produits</a>
     <a href="#contact">Contact</a>
+    <a href="app/views/products/cart.php" class="cart-link">
+      <i class="fas fa-shopping-cart"></i>
+      <span id="cart-count" class="cart-count">0</span>
+    </a>
   </div>
 </nav>
 
@@ -62,7 +76,7 @@
   </div>
 
   <video class="bg-video" autoplay muted loop playsinline>
-    <source src="videos/intro.mp4" type="video/mp4">
+    <source src="assets/videos/intro.mp4" type="video/mp4">
   </video>
 
   <div class="scroll-indicator">
@@ -74,7 +88,6 @@
 <!-- ═══ MARQUEE 1 ═════════════════════════════════════════════ -->
 <div class="marquee-strip">
   <div class="marquee-track" id="marqueeTrack">
-    <!-- duplicated for seamless loop -->
     <span>Beurre AOP</span><span class="sep">✦</span>
     <span>Fait maison chaque matin</span><span class="sep">✦</span>
     <span>Chocolat grand cru</span><span class="sep">✦</span>
@@ -100,7 +113,7 @@
   </div>
 
   <div class="cookie">
-    <img src="images/cookies.png" alt="Cookie artisanal" class="cookie-imgg">
+    <img src="assets/images/cookies.png" alt="Cookie artisanal" class="cookie-imgg">
   </div>
 </section>
 
@@ -129,70 +142,36 @@
   </div>
 
   <div class="showcase-grid">
+    <?php
+      $limit = min(4, count($cookiesList));
+      for ($i = 0; $i < $limit; $i++):
+    ?>
+      <div class="cookie-card">
+        <div class="cookie-img">
+         
+          <img
+            src="assets/images/<?php echo htmlspecialchars($cookiesList[$i]['image']);?>"
+            alt="<?php echo htmlspecialchars($cookiesList[$i]['nom']); ?>"
+          >
+          <span class="cookie-tag">Nouveau</span>
+        </div>
 
-    <div class="cookie-card">
-      <div class="cookie-img">
-        <img src="images/Cookie-ChocoNoisettes-Modifier.jpg" alt="Cookie Brownie">
-        <span class="cookie-tag">Bestseller</span>
-      </div>
-      <div class="cookie-info">
-        <h3>Cookie Brownie</h3>
-        <p>Éclats de chocolat noir, cœur fondant intense</p>
-        <div class="cookie-footer">
-          <span class="price">4,90 €</span>
-          <button class="add-btn" aria-label="Ajouter">+</button>
+        <div class="cookie-info">
+          <h3><?php echo htmlspecialchars($cookiesList[$i]['nom']); ?></h3>
+          <p><?php  $desc = htmlspecialchars($cookiesList[$i]['description']);
+              echo strlen($desc) > 60 ? substr($desc, 0, 60) . '...' : $desc;?></p>
+
+          <div class="cookie-footer">
+            <span class="price"><?php echo number_format($cookiesList[$i]['prix'], 2, ',', ' '); ?> Dt</span>
+            <button class="add-btn" aria-label="Ajouter au panier">+</button>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="cookie-card">
-      <div class="cookie-img">
-        <img src="images/DOUBLE CHOCOLATE COOKIES_108755_1120_1460.jpg" alt="Noisette Praliné">
-        <span class="cookie-tag">Nouveau</span>
-      </div>
-      <div class="cookie-info">
-        <h3>Noisette & Praliné</h3>
-        <p>Praliné maison, noisettes torréfiées du Piémont</p>
-        <div class="cookie-footer">
-          <span class="price">5,20 €</span>
-          <button class="add-btn" aria-label="Ajouter">+</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="cookie-card">
-      <div class="cookie-img">
-        <img src="images/doublechocolatechipcookies_overhead.jpg" alt="Caramel Beurre Salé">
-      </div>
-      <div class="cookie-info">
-        <h3>Caramel Beurre Salé</h3>
-        <p>Fleur de sel de Guérande, caramel onctueux fait maison</p>
-        <div class="cookie-footer">
-          <span class="price">5,50 €</span>
-          <button class="add-btn" aria-label="Ajouter">+</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="cookie-card">
-      <div class="cookie-img">
-        <img src="images/cookie2.jpg" alt="Red Velvet Cookie">
-        <span class="cookie-tag">Signature</span>
-      </div>
-      <div class="cookie-info">
-        <h3>Red Velvet Cookie</h3>
-        <p>Éclats de framboise, cream cheese fondant</p>
-        <div class="cookie-footer">
-          <span class="price">5,90 €</span>
-          <button class="add-btn" aria-label="Ajouter">+</button>
-        </div>
-      </div>
-    </div>
-
+    <?php endfor; ?>
   </div>
 </div>
 
-<button class="produits-btn"><a href="./pages/produits.html">voir les produits</a></button>
+<a href="./app/views/products/listCookies.php" class="produits-btn">Voir les produits</a>
 
 <!-- ═══ CONTACT ═══════════════════════════════════════════════ -->
 <section class="contact-section" id="contact">
@@ -224,15 +203,15 @@
 
     <div class="contact-right">
       <h3>Réservez votre box</h3>
-      <form id="contactForm">
+      <form >
         <div class="form-group">
-          <input type="text" placeholder="Votre nom" required>
+          <input type="text" name="nom" placeholder="Votre nom" required>
         </div>
         <div class="form-group">
-          <input type="email" placeholder="Adresse e-mail" required>
+          <input type="email" name="email" placeholder="Adresse e-mail" required>
         </div>
         <div class="form-group">
-          <textarea rows="4" placeholder="Quel cookie vous fait envie ? Dites-nous tout…"></textarea>
+          <textarea name="message" rows="4" placeholder="Quel cookie vous fait envie ? Dites-nous tout…"></textarea>
         </div>
         <button type="submit">
           Envoyer ma commande
@@ -252,6 +231,30 @@
   <span>Paris, France</span>
 </footer>
 
+<script>
+  // Définir le chemin du contrôleur du panier pour la page d'accueil
+  window.CART_CONTROLLER_URL = 'app/controllers/CartController.php';
+  
+  // Gestion du panier depuis la page d'accueil
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser le compteur du panier
+    updateCartCount();
+    
+    // Ajouter au panier depuis les produits en vedette
+    document.querySelectorAll('.add-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Chercher l'ID du produit le plus proche
+        const cookieCard = this.closest('[data-product-id], .cookie-card');
+        if (cookieCard && cookieCard.dataset.productId) {
+          addToCart(cookieCard.dataset.productId, 1);
+        }
+      });
+    });
+  });
+</script>
 
 </body>
 </html>
