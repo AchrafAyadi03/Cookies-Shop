@@ -6,6 +6,7 @@
   <title>L'art du Cookie | Pâtisserie artisanale</title>
   <link href="assets/css/style.css" rel="stylesheet">
   <link href="assets/css/cart.css" rel="stylesheet">
+  <link href="assets/css/auth.css" rel="stylesheet">
   <script src="assets/js/script.js" defer></script>
   <script src="assets/js/cart.js" defer></script>
 
@@ -23,9 +24,10 @@
 
   <?php
   require_once('app/models/Product.php');
+  require_once('app/controllers/AuthController.php');
   $product = new cookies();
   $stmt = $product->listCookies();
-  $cookiesList = $stmt->fetchAll(PDO::FETCH_ASSOC); 
+  $cookiesList = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 </head>
@@ -48,6 +50,18 @@
       <i class="fas fa-shopping-cart"></i>
       <span id="cart-count" class="cart-count">0</span>
     </a>
+    <?php if (AuthController::isLoggedIn()): ?>
+      <?php if (AuthController::isAdmin()): ?>
+        <a href="app/views/admin/dashboard.php"><i class="fas fa-shield-alt"></i> Admin</a>
+      <?php endif; ?>
+      <span class="user-chip">
+        <i class="fas fa-user"></i>
+        <?php echo htmlspecialchars($_SESSION['user']['nom']); ?>
+        <a href="app/controllers/AuthController.php?action=logout" class="logout-link">Déconnexion</a>
+      </span>
+    <?php else: ?>
+      <a href="app/views/auth/login.php">Connexion</a>
+    <?php endif; ?>
   </div>
 </nav>
 
@@ -146,7 +160,7 @@
       $limit = min(4, count($cookiesList));
       for ($i = 0; $i < $limit; $i++):
     ?>
-      <div class="cookie-card">
+      <div class="cookie-card" data-product-id="<?php echo (int)$cookiesList[$i]['id']; ?>">
         <div class="cookie-img">
          
           <img

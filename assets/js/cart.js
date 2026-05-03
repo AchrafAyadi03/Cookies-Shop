@@ -9,7 +9,17 @@ const CART_CONTROLLER_URL = window.CART_CONTROLLER_URL || 'app/controllers/CartC
  * Ajouter un produit au panier
  */
 function addToCart(productId, quantity = 1) {
-    quantity = quantity || 1;
+    productId = parseInt(productId, 10);
+    quantity = parseInt(quantity, 10);
+
+    if (Number.isNaN(quantity)) {
+        quantity = 1;
+    }
+
+    if (!productId || quantity < 1) {
+        showNotification('Produit ou quantité invalide', 'error');
+        return;
+    }
     
     fetch(CART_CONTROLLER_URL, {
         method: 'POST',
@@ -89,9 +99,9 @@ function updateQuantity(button, delta) {
 function updateQuantityInput(input) {
     const container = input.closest('.cart-item');
     const productId = container.dataset.id;
-    let quantity = parseInt(input.value);
+    let quantity = parseInt(input.value, 10);
     
-    if (quantity < 1) {
+    if (Number.isNaN(quantity) || quantity < 1) {
         quantity = 1;
         input.value = 1;
     }
@@ -109,6 +119,9 @@ function updateQuantityInput(input) {
             updateCartItemTotal(container);
             updateCartSummary();
             updateCartCount();
+        } else {
+            showNotification(data.message || 'Erreur lors de la mise à jour', 'error');
+            location.reload();
         }
     })
     .catch(error => console.error('Erreur:', error));
@@ -124,7 +137,7 @@ function updateCartItemTotal(cartItem) {
     const total = (price * quantity).toFixed(2);
     
     cartItem.querySelector('.item-total').textContent = 
-        total.replace('.', ',') + ' €';
+        total.replace('.', ',') + ' Dt';
 }
 
 /**
@@ -140,8 +153,8 @@ function updateCartSummary() {
     });
     
     const formattedTotal = subtotal.toFixed(2).replace('.', ',');
-    document.querySelector('.subtotal').textContent = formattedTotal + ' €';
-    document.querySelector('.total-amount').textContent = formattedTotal + ' €';
+    document.querySelector('.subtotal').textContent = formattedTotal + ' Dt';
+    document.querySelector('.total-amount').textContent = formattedTotal + ' Dt';
 }
 
 /**

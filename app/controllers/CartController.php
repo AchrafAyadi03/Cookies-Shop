@@ -24,11 +24,29 @@ class CartController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
             $id = (int)$_POST['id'];
             $quantite = isset($_POST['quantite']) ? (int)$_POST['quantite'] : 1;
+
+            if ($id <= 0 || $quantite <= 0) {
+                return [
+                    'success' => false,
+                    'message' => 'Quantité invalide'
+                ];
+            }
             
             // Récupérer les infos du produit depuis la BD
             $cookie = $this->product->getCookieById($id);
             
             if ($cookie && $cookie['quantite'] > 0) {
+                $currentItem = $this->cart->getItem($id);
+                $currentQuantity = $currentItem ? (int)$currentItem['quantite'] : 0;
+                $stock = (int)$cookie['quantite'];
+
+                if (($currentQuantity + $quantite) > $stock) {
+                    return [
+                        'success' => false,
+                        'message' => 'Stock insuffisant'
+                    ];
+                }
+
                 $this->cart->addItem(
                     $cookie['id'],
                     $cookie['nom'],
@@ -85,11 +103,39 @@ class CartController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id']) && isset($_POST['quantite'])) {
             $id = (int)$_POST['id'];
             $quantite = (int)$_POST['quantite'];
+
+            if ($id <= 0) {
+                return [
+                    'success' => false,
+                    'message' => 'Produit invalide'
+                ];
+            }
             
             if ($quantite < 1) {
                 $this->removeFromCart();
             } else {
-                $this->cart->updateQuantity($id, $quantite);
+                $cookie = $this->product->getCookieById($id);
+
+                if (!$cookie || $cookie['quantite'] <= 0) {
+                    return [
+                        'success' => false,
+                        'message' => 'Produit indisponible'
+                    ];
+                }
+
+                if ($quantite > (int)$cookie['quantite']) {
+                    return [
+                        'success' => false,
+                        'message' => 'Stock insuffisant'
+                    ];
+                }
+
+                if (!$this->cart->updateQuantity($id, $quantite)) {
+                    return [
+                        'success' => false,
+                        'message' => 'Produit absent du panier'
+                    ];
+                }
             }
             
             return [

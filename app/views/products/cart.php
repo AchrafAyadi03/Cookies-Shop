@@ -1,10 +1,14 @@
 <?php
 session_start();
 require_once('../../models/Cart.php');
+require_once(__DIR__ . '/../../controllers/AuthController.php');
 
 $cart = new Cart();
 $items = $cart->getItems();
 $total = $cart->getTotalPrice();
+
+$orderError = $_SESSION['order_error'] ?? null;
+unset($_SESSION['order_error']);
 ?>
 
 <!DOCTYPE html>
@@ -15,8 +19,12 @@ $total = $cart->getTotalPrice();
     <title>Mon Panier | L'art du Cookie</title>
     <link rel="stylesheet" href="../../../assets/css/style.css">
     <link rel="stylesheet" href="../../../assets/css/cart.css">
+    <link rel="stylesheet" href="../../../assets/css/auth.css">
 
     <script src="../../../assets/js/script.js" defer></script>
+    <script>
+        window.CART_CONTROLLER_URL = '../../controllers/CartController.php';
+    </script>
     <script src="../../../assets/js/cart.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,6 +50,15 @@ $total = $cart->getTotalPrice();
                 <i class="fas fa-shopping-cart"></i>
                 <span id="cart-count" class="cart-count">0</span>
             </a>
+            <?php if (AuthController::isLoggedIn()): ?>
+                <span class="user-chip">
+                    <i class="fas fa-user"></i>
+                    <?php echo htmlspecialchars($_SESSION['user']['nom']); ?>
+                    <a href="../../controllers/AuthController.php?action=logout" class="logout-link">Déconnexion</a>
+                </span>
+            <?php else: ?>
+                <a href="../auth/login.php">Connexion</a>
+            <?php endif; ?>
         </div>
     </nav>
 
@@ -55,6 +72,10 @@ $total = $cart->getTotalPrice();
     <section class="cart-section">
         <div class="cart-container">
             <h1 class="cart-title">Mon Panier</h1>
+
+            <?php if ($orderError): ?>
+                <div class="auth-error" style="margin-bottom:20px;"><?php echo htmlspecialchars($orderError); ?></div>
+            <?php endif; ?>
 
             <?php if (count($items) > 0): ?>
                 <div class="cart-content">
@@ -127,7 +148,17 @@ $total = $cart->getTotalPrice();
 
                             <div class="cart-actions">
                                 <a href="listCookies.php" class="btn-continue">Continuer les achats</a>
-                                <a href="#" class="btn-checkout">Passer la commande</a>
+                                <?php if (AuthController::isLoggedIn() && !AuthController::isAdmin()): ?>
+                                    <form method="POST" action="../../controllers/OrderController.php?action=place" style="margin:0;">
+                                        <button type="submit" class="btn-checkout" style="border:none;cursor:pointer;width:100%;">
+                                            Passer la commande
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <a href="../auth/login.php?redirect=cart" class="btn-checkout">
+                                        Se connecter pour commander
+                                    </a>
+                                <?php endif; ?>
                             </div>
 
                             <button class="btn-clear-cart" onclick="clearCart()">

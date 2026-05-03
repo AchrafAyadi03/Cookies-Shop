@@ -7,6 +7,7 @@
     <title>Produits</title>
     <link rel="stylesheet" href="../../../assets/css/style.css" />
     <link rel="stylesheet" href="../../../assets/css/cart.css" />
+    <link rel="stylesheet" href="../../../assets/css/auth.css" />
     <script src="../../../assets/js/script.js" defer></script>
     <script src="../../../assets/js/cart.js" defer></script>
     <!-- GSAP -->
@@ -16,6 +17,7 @@
 
 <?php
 require_once('../../models/Product.php');
+require_once(__DIR__ . '/../../controllers/AuthController.php');
 $product = new cookies();
 $cookiesList = $product->listCookies();
 ?>
@@ -30,13 +32,25 @@ $cookiesList = $product->listCookies();
             <img src="../../../assets/images/logo2.png" alt="L'art du Cookie" />
         </a>
         <div class="navbar-menu">
-            <a href="../../../index.html">Accueil</a>
+            <a href="../../../index.php">Accueil</a>
             <a href="listCookies.php">Produits</a>
             <a href="#contact">Contact</a>
             <a href="cart.php" class="cart-link">
                 <i class="fas fa-shopping-cart"></i>
                 <span id="cart-count" class="cart-count">0</span>
             </a>
+            <?php if (AuthController::isLoggedIn()): ?>
+                <?php if (AuthController::isAdmin()): ?>
+                    <a href="../admin/dashboard.php"><i class="fas fa-shield-alt"></i> Admin</a>
+                <?php endif; ?>
+                <span class="user-chip">
+                    <i class="fas fa-user"></i>
+                    <?php echo htmlspecialchars($_SESSION['user']['nom']); ?>
+                    <a href="../../controllers/AuthController.php?action=logout" class="logout-link">Déconnexion</a>
+                </span>
+            <?php else: ?>
+                <a href="../auth/login.php">Connexion</a>
+            <?php endif; ?>
         </div>
     </nav>
 
